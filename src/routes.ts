@@ -6,14 +6,15 @@ import * as cheerio from 'cheerio';
 const app = express();
 
 interface IProducts {
-    name?: string;
+    name?: string | undefined | any;
     image?: string;
 }
 
 
-app.get('/', async (req,res)=>{
+app.get('/test/:search', async (req,res)=>{
     try {
-        const url = 'https://www.google.com/search?q=camisa+nike&tbm=shop';
+        const {search} = req.params;
+        const url = `https://www.google.com/search?q=${search}&tbm=shop`;
         
         const {data} = await axios.get(url, {
             headers: {
@@ -23,21 +24,30 @@ app.get('/', async (req,res)=>{
     
         const $ = cheerio.load(data)
 
-        const listItem = $('body #main .tAxDx')
+        const listItem = $('body #main .sh-dgr__content')
 
         const countries: IProducts [] = [];
-        listItem.each((idx, el) => {
+        listItem.map((idx, el) => {
+            const coutry: IProducts = {}
             // // Object holding data for each country/jurisdiction
             // // Select the text content of a and span elements
             // // Store the textcontent in the above object
-            // country.name = $(el).children("a").text();
-            // country.iso3 = $(el).children("span").text();
+            coutry.name = $(el).find('.tAxDx').text()
+            coutry.image = $(el).find('img').attr('src');
+            // coutry.image = $(el).find('img').attr('src')
             // // Populate countries array with country data
             // countries.push(el);
-            el.children.map((ele: any, key)=>{
-                countries.push({name: ele.data})
-            })
+            // const name = $('.tAxDx').text();
+            // const image = $(el).find('img').attr('src');
+
+            countries.push(coutry)
+            
+            // console.log(image)
+            // el.children.map((ele: any, key)=>{
+            //     countries.push({name})
+            // })
           });
+        //   countries.push(coutry)
 
           res.json(countries)
     
