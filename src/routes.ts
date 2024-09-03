@@ -88,10 +88,10 @@ app.get("/ch", async (req, res) => {
       });
     });
 
-    console.log(data);
+    await browser.close();
+    res.json(data);
 
     // Fecha o navegador
-    await browser.close();
   } catch (error) {}
 });
 
